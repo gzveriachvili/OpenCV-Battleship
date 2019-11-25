@@ -1,5 +1,7 @@
 #include <iostream>
-#include <string>
+#include <thread>
+#include <chrono>
+#include <string> 
 #include <dos.h> //for delay
 #include <conio.h> //for getch()
 #include <opencv2/core/core.hpp>
@@ -28,8 +30,8 @@ void displayImage(string image_name) {
 
 struct POINT {
 	//Horizontal and vertical coordinates
-	int X;
-	int Y;
+	int X = 0;
+	int Y = 0;
 };
 
 struct SHIP {
@@ -70,7 +72,7 @@ int main()
 {
 	LoadShips();
 	ResetBoard();
-	displayImage("grid.png");
+	//displayImage("grid.png");
 	//displayImage("carrier.png");
 	
 	//Loop through each player and place ships
@@ -118,13 +120,14 @@ int main()
 
 				//Add the REMAINING grid points to our current players game board
 				player[aPlayer].grid[aShip.shipType.onGrid[i].X][aShip.shipType.onGrid[i].Y] = isSHIP;
+				
 			}
 			//Loop back through each ship type
 		}
 		//Loop back through each player
 	}
 
-	//Game part after ships have been placed by both palyers
+	//Game part after ships have been placed by both players
 	gameRunning = true;
 	int thisPlayer = 1;
 	do {
@@ -134,6 +137,7 @@ int main()
 		if (thisPlayer == 2) enemyPlayer = 1;
 		system("cls");
 		DrawBoard(enemyPlayer);
+		
 
 		//Get attack coords from this player
 		bool goodInput = false;
@@ -143,9 +147,19 @@ int main()
 		}
 
 		//Check board; if a ship is there, set as HIT.. otherwise MISS
-		if (player[enemyPlayer].grid[x][y] == isSHIP) player[enemyPlayer].grid[x][y] = isHIT;
-		if (player[enemyPlayer].grid[x][y] == isWATER) player[enemyPlayer].grid[x][y] = isMISS;
-
+		
+		if (player[enemyPlayer].grid[x][y] == isSHIP) {
+			player[enemyPlayer].grid[x][y] = isHIT;
+			DrawBoard(enemyPlayer);
+			cout << "BOOM";
+			std::this_thread::sleep_for(std::chrono::seconds(3));
+		}
+		if (player[enemyPlayer].grid[x][y] == isWATER) {
+			player[enemyPlayer].grid[x][y] = isMISS;
+			DrawBoard(enemyPlayer);
+			cout << "MISS";
+			std::this_thread::sleep_for(std::chrono::seconds(3));
+		}
 		//Check to see if the game is over
 		//If 0 is returned, nobody has won yet
 		int aWin = GameOverCheck(enemyPlayer);
@@ -153,6 +167,7 @@ int main()
 			gameRunning = false;
 			break;
 		}
+		//std::this_thread::sleep_for(std::chrono::seconds(3));
 		//Alternate between each player as we loop back around
 		thisPlayer = (thisPlayer == 1) ? 2 : 1;
 	} while (gameRunning);
@@ -169,8 +184,8 @@ bool GameOverCheck(int enemyPLAYER)
 {
 	bool winner = true;
 	//Loop through enemy board
-	for (int w = 0; w < BOARD_WIDTH; ++w) {
-		for (int h = 0; h < BOARD_HEIGHT; ++h) {
+	for (int w = 0; w < BOARD_WIDTH; w++) {
+		for (int h = 0; h < BOARD_HEIGHT; h++) {
 			//If any ships remain, game is NOT over
 			if (player[enemyPLAYER].grid[w][h] = isSHIP)
 			{
@@ -229,12 +244,12 @@ void ResetBoard()
 	for (int plyr = 1; plyr < 3; ++plyr)
 	{
 		//For each grid point, set contents to 'water'
-		for (int w = 0; w < BOARD_WIDTH; ++w) {
-			for (int h = 0; h < BOARD_HEIGHT; ++h) {
+		for (int w = 0; w < BOARD_WIDTH; w++) {
+			for (int h = 0; h < BOARD_HEIGHT; h++) {
 				player[plyr].grid[w][h] = isWATER;
 			}
 		}
-		//Loop back to next player
+		//Loop back to next player -> plyr 1, 2
 	}
 }
 
@@ -249,7 +264,7 @@ void DrawBoard(int thisPlayer)
 
 	//Loop through the board with and draw the numbers
 	cout << "   "; //left-padding for number row on top
-	for (int w = 0; w < BOARD_WIDTH; ++w) {
+	for (int w = 0; w < BOARD_WIDTH; w++) {
 		if (w < BOARD_WIDTH)
 			cout << w << "  ";
 	};
@@ -257,8 +272,8 @@ void DrawBoard(int thisPlayer)
 	cout << "\n";
 
 	//Loop through each grid point and display to console
-	for (int h = 0; h < BOARD_HEIGHT; ++h) {
-		for (int w = 0; w < BOARD_WIDTH; ++w) {
+	for (int h = 0; h < BOARD_HEIGHT; h++) {
+		for (int w = 0; w < BOARD_WIDTH; w++) {
 			//Displaying the letters
 			
 			if (w == 0 ) {
@@ -270,7 +285,6 @@ void DrawBoard(int thisPlayer)
 			//Display contents of this grid (if game isn't running yet, we are placing ships
 			//so display the ships
 			if (gameRunning == false) cout << player[thisPlayer].grid[w][h] << "  ";
-			//Don't show ships, BUT show damage if it's hit
 			if (gameRunning == true && player[thisPlayer].grid[w][h] != isSHIP)
 			{
 				cout << player[thisPlayer].grid[w][h] << "  ";
@@ -279,7 +293,6 @@ void DrawBoard(int thisPlayer)
 			{
 				cout << isWATER << "  ";
 			}
-			//If we have reached the border = line feed
 			if (w == BOARD_WIDTH - 1) cout << "\n";
 		}
 	}
