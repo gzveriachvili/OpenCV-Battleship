@@ -20,6 +20,11 @@ const char isHIT = 'X';
 const char isSHIP = 'S';
 const char isMISS = 'O';
 
+bool scoutArea = false;
+bool multiShot = false;
+bool superMultiShot = false;
+bool strafeRun = false;
+
 //Function for loading and displaying images
 void displayImage(string image_name) {
 	Mat img;
@@ -73,9 +78,6 @@ int main()
 {
 	LoadShips();
 	ResetBoard();
-	bool scoutArea = false;
-	bool multiShot = false;
-	bool superMultiShot = false;
 	//displayImage("grid.png");
 	//displayImage("carrier.png");
 
@@ -194,20 +196,20 @@ int main()
 
 			if (player[enemyPlayer].grid[x][y] == isSHIP) {
 				player[enemyPlayer].grid[x][y] = isHIT;
-				cout << "BOOM";
 				DrawBoard(enemyPlayer);
+				cout << "BOOM";
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 			}
 
 			if (player[enemyPlayer].grid[x][y] == isWATER) {
 				player[enemyPlayer].grid[x][y] = isMISS;
-				cout << "MISS";
 				DrawBoard(enemyPlayer);
+				cout << "MISS";
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 			}
 		}
 
-		superMultiShot = true; //shoots in a 3x3 square
+		superMultiShot = false; //shoots in a 3x3 square
 
 		if (superMultiShot == true) {
 
@@ -231,15 +233,46 @@ int main()
 
 			if (player[enemyPlayer].grid[x][y] == isSHIP) {
 				player[enemyPlayer].grid[x][y] = isHIT;
-				cout << "BOOM";
 				DrawBoard(enemyPlayer);
+				cout << "BOOM";
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 			}
 
 			if (player[enemyPlayer].grid[x][y] == isWATER) {
 				player[enemyPlayer].grid[x][y] = isMISS;
-				cout << "MISS";
 				DrawBoard(enemyPlayer);
+				cout << "MISS";
+				std::this_thread::sleep_for(std::chrono::seconds(3));
+			}
+		}
+
+		strafeRun = true; //shoots in a line
+
+		if (strafeRun == true) {
+
+			if (player[enemyPlayer].grid[x - 1][y] == isSHIP) { player[enemyPlayer].grid[x - 1][y] = isHIT; }
+			if (player[enemyPlayer].grid[x + 1][y] == isSHIP) { player[enemyPlayer].grid[x + 1][y] = isHIT; }
+			if (player[enemyPlayer].grid[x - 2][y] == isSHIP) { player[enemyPlayer].grid[x - 2][y] = isHIT; }
+			if (player[enemyPlayer].grid[x + 2][y] == isSHIP) { player[enemyPlayer].grid[x + 2][y] = isHIT; }
+			
+
+			if (player[enemyPlayer].grid[x - 1][y] == isWATER) { player[enemyPlayer].grid[x - 1][y] = isMISS; }
+			if (player[enemyPlayer].grid[x + 1][y] == isWATER) { player[enemyPlayer].grid[x + 1][y] = isMISS; }
+			if (player[enemyPlayer].grid[x - 2][y] == isWATER) { player[enemyPlayer].grid[x - 2][y] = isMISS; }
+			if (player[enemyPlayer].grid[x + 2][y] == isWATER) { player[enemyPlayer].grid[x + 2][y] = isMISS; }
+			
+
+			if (player[enemyPlayer].grid[x][y] == isSHIP) {
+				player[enemyPlayer].grid[x][y] = isHIT;
+				DrawBoard(enemyPlayer);
+				cout << "BOOM";
+				std::this_thread::sleep_for(std::chrono::seconds(3));
+			}
+
+			if (player[enemyPlayer].grid[x][y] == isWATER) {
+				player[enemyPlayer].grid[x][y] = isMISS;
+				DrawBoard(enemyPlayer);
+				cout << "MISS";
 				std::this_thread::sleep_for(std::chrono::seconds(3));
 			}
 		}
