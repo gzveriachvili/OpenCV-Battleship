@@ -51,7 +51,8 @@ struct PLAYER {
 
 enum DIRECTION { //The enum direction can either get the value horizontal or vertical
 	HORIZONTAL,
-	VERTICAL }; 
+	VERTICAL
+};
 
 struct PLACESHIPS {
 	DIRECTION direction;
@@ -74,7 +75,7 @@ int main()
 	ResetBoard();
 	//displayImage("grid.png");
 	//displayImage("carrier.png");
-	
+
 	//Loop through each player and place ships
 	for (int aPlayer = 1; aPlayer < 3; ++aPlayer)
 	{
@@ -83,7 +84,7 @@ int main()
 		{
 			//Display board
 			system("cls");
-			DrawBoard(aPlayer);
+			DrawBoard(aPlayer); //Displaying the board for ship placement stage
 			//Instructions
 			cout << "\n";
 			cout << "(Player " << aPlayer << ")\n\n";
@@ -120,7 +121,7 @@ int main()
 
 				//Add the REMAINING grid points to our current players game board
 				player[aPlayer].grid[aShip.shipType.onGrid[i].X][aShip.shipType.onGrid[i].Y] = isSHIP;
-				
+
 			}
 			//Loop back through each ship type
 		}
@@ -137,7 +138,7 @@ int main()
 		if (thisPlayer == 2) enemyPlayer = 1;
 		system("cls");
 		DrawBoard(enemyPlayer);
-		
+
 
 		//Get attack coords from this player
 		bool goodInput = false;
@@ -147,7 +148,7 @@ int main()
 		}
 
 		//Check board; if a ship is there, set as HIT.. otherwise MISS
-		
+
 		if (player[enemyPlayer].grid[x][y] == isSHIP) {
 			player[enemyPlayer].grid[x][y] = isHIT;
 			DrawBoard(enemyPlayer);
@@ -160,8 +161,11 @@ int main()
 			cout << "MISS";
 			std::this_thread::sleep_for(std::chrono::seconds(3));
 		}
-		//Check to see if the game is over
-		//If 0 is returned, nobody has won yet
+
+
+
+		
+		//If 0 is returned -> nobody has won 
 		int aWin = GameOverCheck(enemyPlayer);
 		if (aWin != 0) {
 			gameRunning = false;
@@ -218,7 +222,7 @@ PLACESHIPS UserInputShipPlacement()
 	PLACESHIPS tmp;
 	//Using this as a bad return
 	tmp.shipType.onGrid[0].X = -1;
-	//Get 3 integers from user
+	//Get 3 integers from user -> d - direction, x and y coordinates
 	cin >> d >> x >> y;
 	if (d != 0 && d != 1) return tmp;
 	if (x < 0 || x >= BOARD_WIDTH) return tmp;
@@ -241,25 +245,25 @@ void LoadShips()
 void ResetBoard()
 {
 	//Loop through each player
-	for (int plyr = 1; plyr < 3; ++plyr)
+	for (int playerIndex = 1; playerIndex < 3; ++playerIndex)
 	{
 		//For each grid point, set contents to 'water'
 		for (int w = 0; w < BOARD_WIDTH; w++) {
 			for (int h = 0; h < BOARD_HEIGHT; h++) {
-				player[plyr].grid[w][h] = isWATER;
+				player[playerIndex].grid[w][h] = isWATER;
 			}
 		}
-		//Loop back to next player -> plyr 1, 2
+		//Loop back to next player -> playerIndex 1, 2
 	}
 }
 
 void DrawBoard(int thisPlayer)
-{	
+{
 	//Array that contains the letters
 	char gridLetters[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T' };
 
 	//Draws the board for a player (thisPlayer)
-	cout << "PLAYER " << thisPlayer << "'s GAME BOARD\n";
+	cout << "PLAYER " << thisPlayer << "'s BOARD\n";
 	cout << "----------------------\n";
 
 	//Loop through the board with and draw the numbers
@@ -268,22 +272,21 @@ void DrawBoard(int thisPlayer)
 		if (w < BOARD_WIDTH)
 			cout << w << "  ";
 	};
-		
+
 	cout << "\n";
 
 	//Loop through each grid point and display to console
 	for (int h = 0; h < BOARD_HEIGHT; h++) {
 		for (int w = 0; w < BOARD_WIDTH; w++) {
 			//Displaying the letters
-			
-			if (w == 0 ) {
+
+			if (w == 0) {
 				cout << gridLetters[h] << "  ";
 			}
 			if (w > 10) {
 				cout << " ";
 			}
-			//Display contents of this grid (if game isn't running yet, we are placing ships
-			//so display the ships
+			//Display contents of this grid -> when game not running we are still placing ships
 			if (gameRunning == false) cout << player[thisPlayer].grid[w][h] << "  ";
 			if (gameRunning == true && player[thisPlayer].grid[w][h] != isSHIP)
 			{
